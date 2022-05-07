@@ -20,7 +20,7 @@ spec:
           imagePullPolicy: IfNotPresent
           resources: {{ .Values.resources | toYaml | nindent 11 }}
           command:
-            - /bin/bash
+            - /bin/sh
             - -lc
             - |
               echo hello world

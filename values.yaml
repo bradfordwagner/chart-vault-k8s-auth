@@ -13,3 +13,4 @@ resources:
     cpu: 50m
     memory: 50Mi
 
+service_account: vault-auth
