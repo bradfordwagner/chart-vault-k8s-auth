@@ -1,0 +1,20 @@
+---
+image:
+  repository: quay.io/bradfordwagner/vault-k8s-auth
+  tag: 1.2.0-alpine_3.13
+
+service_account: vault-auth
+
+context:
+  secret:
+    # includes
+    # server = kubernetes api server address
+    # ca = kubernetes api server certificate authority
+    # cluster_name = auth endpoint at auth/kubernetes/cluster_name
+    # VAULT_TOKEN = secret 0 to bootstrap to vault with - should eventually be an approle
+    name: k8s-auth-config
+
+vault:
+  address: http://bradfordwagner.com:8200
+  insecure: true
+

@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-init-auth
+  labels:
+    {{- include "labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .Values.service_account }}
+      restartPolicy: Never
+      containers:
+        - name: main
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          resources: {{ .Values.resources | toYaml | nindent 11 }}
+          command:
+            - /bin/bash
+            - -lc
+            - |
+              export VAULT_SA_NAME=$(kubectl get sa {{ .Values.service_account }} \
+                --output jsonpath="{.secrets[*]['name']}")
+              export SA_JWT_TOKEN=$(kubectl get secret ${VAULT_SA_NAME} \
+                --output 'go-template={{`{{ .data.token }}`}}' | base64 -d)
+              vault write auth/kubernetes/${cluster_name}/config \
+                   token_reviewer_jwt="${SA_JWT_TOKEN}" \
+                   kubernetes_host="${server}" \
+                   kubernetes_ca_cert="${ca}"
+          env:
+            - name: VAULT_ADDR
+              value: {{ .Values.vault.address }}
+            - name: VAULT_SKIP_VERIFY
+              value: {{ .Values.vault.insecure | quote }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.context.secret.name }}
