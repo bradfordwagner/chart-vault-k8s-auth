@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-init-auth
+  labels:
+    {{- include "labels" . | nindent 4 }}
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .Values.service_account }}
+      restartPolicy: Never
+      containers:
+        - name: main
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          resources: {{ .Values.resources | toYaml | nindent 11 }}
+          command:
+            - /bin/sh
+            - -lc
+            - |
+              echo hello world
+              export VAULT_SA_NAME=$(kubectl get sa {{ .Values.service_account }} \
+                --output jsonpath="{.secrets[*]['name']}")
+              sleep 10000000
