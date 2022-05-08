@@ -15,10 +15,22 @@ spec:
           imagePullPolicy: IfNotPresent
           resources: {{ .Values.resources | toYaml | nindent 11 }}
           command:
-            - /bin/sh
+            - /bin/bash
             - -lc
             - |
-              echo hello world
               export VAULT_SA_NAME=$(kubectl get sa {{ .Values.service_account }} \
                 --output jsonpath="{.secrets[*]['name']}")
-              sleep 10000000
+              export SA_JWT_TOKEN=$(kubectl get secret ${VAULT_SA_NAME} \
+                --output 'go-template={{`{{ .data.token }}`}}' | base64 -d)
+              vault write auth/kubernetes/${cluster_name}/config \
+                   token_reviewer_jwt="${SA_JWT_TOKEN}" \
+                   kubernetes_host="${server}" \
+                   kubernetes_ca_cert="${ca}"
+          env:
+            - name: VAULT_ADDR
+              value: {{ .Values.vault.address }}
+            - name: VAULT_SKIP_VERIFY
+              value: {{ .Values.vault.insecure | quote }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.context.secret.name }}
