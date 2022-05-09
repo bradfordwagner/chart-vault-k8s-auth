@@ -4,6 +4,9 @@ metadata:
   name: {{ .Release.Name }}-init-auth
   labels:
     {{- include "labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   template:
     spec:
