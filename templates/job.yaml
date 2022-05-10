@@ -21,6 +21,7 @@ spec:
             - /bin/bash
             - -lc
             - |
+              export VAULT_TOKEN=$(vault write auth/approle/login role_id=${role_id} secret_id=${secret_id} -format=json | jq -r '.auth.client_token')
               export VAULT_SA_NAME=$(kubectl get sa {{ .Values.service_account }} \
                 --output jsonpath="{.secrets[*]['name']}")
               export SA_JWT_TOKEN=$(kubectl get secret ${VAULT_SA_NAME} \
