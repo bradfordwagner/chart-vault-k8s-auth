@@ -22,12 +22,10 @@ spec:
             - -lc
             - |
               export VAULT_TOKEN=$(vault write auth/approle/login role_id=${role_id} secret_id=${secret_id} -format=json | jq -r '.auth.client_token')
-              export VAULT_SA_NAME=$(kubectl get sa {{ .Values.service_account }} \
-                --output jsonpath="{.secrets[*]['name']}")
-              export SA_JWT_TOKEN=$(kubectl get secret ${VAULT_SA_NAME} \
+              export jwt=$(kubectl get secret {{ .Values.service_account }} \
                 --output 'go-template={{`{{ .data.token }}`}}' | base64 -d)
               vault write auth/kubernetes/${cluster_name}/config \
-                   token_reviewer_jwt="${SA_JWT_TOKEN}" \
+                   token_reviewer_jwt="${jwt}" \
                    kubernetes_host="${server}" \
                    kubernetes_ca_cert="${ca}"
           env:
