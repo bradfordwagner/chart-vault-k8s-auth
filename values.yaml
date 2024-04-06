@@ -15,6 +15,5 @@ context:
     name: k8s-auth-config
 
 vault:
-  address: http://bradfordwagner.com:8200
-  insecure: true
+  address: https://bradfordwagner.com:8200
 

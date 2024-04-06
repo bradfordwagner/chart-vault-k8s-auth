@@ -31,8 +31,6 @@ spec:
           env:
             - name: VAULT_ADDR
               value: {{ .Values.vault.address }}
-            - name: VAULT_SKIP_VERIFY
-              value: {{ .Values.vault.insecure | quote }}
           envFrom:
             - secretRef:
                 name: {{ .Values.context.secret.name }}
