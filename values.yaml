@@ -1,7 +1,7 @@
 ---
 image:
-  repository: quay.io/bradfordwagner/vault-k8s-auth
-  tag: 1.2.0-alpine_3.13
+  repository: ghcr.io/bradfordwagner/vault-k8s-auth
+  tag: 2.0.0-debian_bookworm
 
 service_account: vault-auth
 
